@@ -1,0 +1,15 @@
+{
+  "name": "buku-arus",
+  "compatibility_date": "2026-09-01",
+  "main": "worker.js",
+  "assets": {
+    "directory": "./",
+    "binding": "ASSETS"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "BUKU_ARUS_KV",
+      "id": "GANTI_DENGAN_NAMESPACE_ID_KAMU"
+    }
+  ]
+}
