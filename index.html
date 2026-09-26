@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Buku Arus — Cashflow Pribadi</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📒</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#122031; --ink-soft:#3d4f63; --paper:#F1F3EF; --panel:#FFFFFF;
+    --line:#D9DCD3; --accent:#8A5CF6; --safe:#2F6D4F; --warn:#B4791F; --over:#B23A2E;
+    --safe-bg:#E7F1EA; --warn-bg:#FBF0DC; --over-bg:#F8E3E0;
+    font-size:16px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'Inter',sans-serif; padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:calc(70px + env(safe-area-inset-bottom,0px));
+  }
+  h1,h2,h3,.num{font-family:'Space Grotesk',sans-serif;}
+  .num{font-variant-numeric: tabular-nums;}
+  header{padding:22px 20px 16px; border-bottom:1px solid var(--line);}
+  header h1{margin:0; font-size:1.3rem; letter-spacing:-.01em;}
+  header p{margin:4px 0 0; color:var(--ink-soft); font-size:.85rem;}
+  main{max-width:640px; margin:0 auto; padding:18px 16px 40px;}
+  section{display:none;}
+  section.active{display:block;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:18px; margin-bottom:14px;}
+  .status-card{border-left:5px solid var(--ink-soft); position:relative;}
+  .status-card.safe{border-left-color:var(--safe); background:var(--safe-bg);}
+  .status-card.warn{border-left-color:var(--warn); background:var(--warn-bg);}
+  .status-card.over{border-left-color:var(--over); background:var(--over-bg);}
+  .status-label{font-size:.75rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin:0 0 6px;}
+  .big-num{font-size:2.1rem; font-weight:700; margin:0; line-height:1.1;}
+  .status-card.safe .big-num{color:var(--safe);}
+  .status-card.warn .big-num{color:var(--warn);}
+  .status-card.over .big-num{color:var(--over);}
+  .sub-row{display:flex; justify-content:space-between; margin-top:12px; font-size:.85rem; color:var(--ink-soft); border-top:1px solid var(--line); padding-top:10px;}
+  .sub-row div{display:flex; flex-direction:column; gap:2px;}
+  .sub-row b{color:var(--ink); font-size:.95rem;}
+  h2.section-title{font-size:1rem; margin:22px 0 10px; color:var(--ink);}
+  .row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); gap:10px;}
+  .row:last-child{border-bottom:none;}
+  .row .name{font-weight:500;}
+  .row .meta{font-size:.78rem; color:var(--ink-soft);}
+  .row .amt{font-weight:600; white-space:nowrap;}
+  .badge{font-size:.7rem; padding:3px 8px; border-radius:20px; font-weight:600; white-space:nowrap;}
+  .badge.safe{background:var(--safe-bg); color:var(--safe);}
+  .badge.warn{background:var(--warn-bg); color:var(--warn);}
+  .badge.over{background:var(--over-bg); color:var(--over);}
+  form{display:flex; flex-direction:column; gap:10px; margin-top:6px;}
+  label{font-size:.8rem; color:var(--ink-soft); display:block; margin-bottom:4px;}
+  input,select{width:100%; padding:10px; border:1px solid var(--line); border-radius:5px; font-size:.95rem; font-family:inherit; background:#fff;}
+  .btn{padding:10px 16px; border-radius:5px; border:none; font-weight:600; font-size:.9rem; cursor:pointer; font-family:inherit;}
+  .btn-primary{background:var(--ink); color:#fff;}
+  .btn-ghost{background:transparent; color:var(--ink-soft); border:1px solid var(--line);}
+  .btn-danger{background:transparent; color:var(--over); border:1px solid var(--over);}
+  .btn-sm{padding:6px 10px; font-size:.78rem;}
+  .actions{display:flex; gap:8px; margin-top:4px;}
+  .empty{color:var(--ink-soft); font-size:.85rem; padding:14px 0; text-align:center;}
+  nav{position:fixed; bottom:0; left:0; right:0; background:var(--panel); border-top:1px solid var(--line);
+      display:flex; padding-bottom:env(safe-area-inset-bottom,0px);}
+  nav button{flex:1; background:none; border:none; padding:12px 4px 10px; font-size:.68rem; color:var(--ink-soft); font-family:'Inter',sans-serif; cursor:pointer;}
+  nav button .ic{display:block; font-size:1.15rem; margin-bottom:2px;}
+  nav button.active{color:var(--accent); font-weight:600;}
+  .sync-bar{display:flex; align-items:center; justify-content:space-between; font-size:.75rem; color:var(--ink-soft); margin-bottom:12px;}
+  .dot{width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:5px;}
+  .dot.local{background:#B4791F;} .dot.cloud{background:#2F6D4F;}
+  .field-inline{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ink:#EDEFE9; --ink-soft:#9aa5ad; --paper:#12181C; --panel:#1B2228; --line:#2B333A;
+      --safe-bg:#183226; --warn-bg:#332508; --over-bg:#331A17;
+    }
+    :root:not([data-theme="light"]) input, :root:not([data-theme="light"]) select{background:#12181C; color:var(--ink);}
+  }
+  :root[data-theme="dark"]{
+    --ink:#EDEFE9; --ink-soft:#9aa5ad; --paper:#12181C; --panel:#1B2228; --line:#2B333A;
+    --safe-bg:#183226; --warn-bg:#332508; --over-bg:#331A17;
+  }
+  :root[data-theme="dark"] input, :root[data-theme="dark"] select{background:#12181C; color:var(--ink);}
+
+  /* ---------- layar lebar (tablet/laptop/desktop): nav jadi sidebar ---------- */
+  @media (min-width: 760px){
+    body{padding-bottom:0;}
+    nav{
+      top:0; bottom:0; left:0; right:auto; width:230px;
+      flex-direction:column; justify-content:flex-start;
+      border-top:none; border-right:1px solid var(--line);
+      padding:26px 0 16px;
+    }
+    nav button{
+      flex:none; width:100%; display:flex; align-items:center; gap:12px;
+      text-align:left; padding:13px 24px; font-size:.85rem;
+    }
+    nav button .ic{display:inline-block; margin-bottom:0; font-size:1.2rem;}
+    .app-shell{margin-left:230px;}
+    header{max-width:784px; margin:0 auto; padding:28px 32px 18px;}
+    main{max-width:720px; margin:0 auto; padding:22px 32px 48px;}
+    .sync-bar{max-width:720px; margin-left:auto; margin-right:auto;}
+    .field-inline{grid-template-columns:1fr 1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+<header>
+  <h1>📒 Buku Arus</h1>
+  <p id="periodeText">Memuat...</p>
+</header>
+
+<main>
+
+  <div class="sync-bar">
+    <span id="syncStatus"><span class="dot local"></span>Tersimpan di perangkat ini</span>
+    <button class="btn btn-ghost btn-sm" id="btnSyncSetup">Sambungkan cloud</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <section id="view-dashboard" class="active">
+    <div class="card status-card" id="statusCard">
+      <p class="status-label">Sisa saldo diproyeksikan sampai gajian berikutnya</p>
+      <p class="big-num num" id="sisaProyeksi">Rp0</p>
+      <div class="sub-row">
+        <div><span>Gaji bulan ini</span><b class="num" id="dGaji">Rp0</b></div>
+        <div><span>Kebiasaan & tagihan</span><b class="num" id="dKebiasaan">Rp0</b></div>
+        <div><span>Pengeluaran tercatat</span><b class="num" id="dPengeluaran">Rp0</b></div>
+        <div><span>Rencana pending</span><b class="num" id="dRencana">Rp0</b></div>
+        <div><span>Pemasukan lain</span><b class="num" id="dPemasukanLain">Rp0</b></div>
+      </div>
+    </div>
+    <p class="empty" id="statusMsg"></p>
+
+    <h2 class="section-title">Pengeluaran terbaru</h2>
+    <div class="card" id="recentList"></div>
+  </section>
+
+  <!-- KEBIASAAN -->
+  <section id="view-kebiasaan">
+    <h2 class="section-title">Kebiasaan & tagihan rutin (per bulan)</h2>
+    <div class="card" id="kebiasaanList"></div>
+    <div class="card">
+      <form id="formKebiasaan">
+        <label>Nama kebiasaan/tagihan</label>
+        <input type="text" id="kNama" placeholder="mis. Gojek harian" required>
+        <label>Estimasi per bulan (Rp)</label>
+        <input type="number" id="kJumlah" placeholder="750000" required min="0">
+        <button class="btn btn-primary" type="submit">Tambah kebiasaan</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- PENGELUARAN -->
+  <section id="view-pengeluaran">
+    <h2 class="section-title">Catat pengeluaran</h2>
+    <div class="card">
+      <form id="formPengeluaran">
+        <div class="field-inline">
+          <div><label>Tanggal</label><input type="date" id="pTanggal" required></div>
+          <div><label>Jumlah (Rp)</label><input type="number" id="pJumlah" min="0" required></div>
+        </div>
+        <label>Untuk apa</label>
+        <input type="text" id="pNama" placeholder="mis. Bayar Ali" required>
+        <button class="btn btn-primary" type="submit">Simpan pengeluaran</button>
+      </form>
+    </div>
+    <h2 class="section-title">Riwayat periode ini</h2>
+    <div class="card" id="pengeluaranList"></div>
+
+    <h2 class="section-title">Pemasukan lain</h2>
+    <p class="empty" style="padding:0 0 10px; text-align:left;">Uang di luar gaji bulanan — hadiah, orang bayar utang, THR, dan sejenisnya. Ini akan menambah proyeksi sisa saldo.</p>
+    <div class="card">
+      <form id="formPemasukan">
+        <div class="field-inline">
+          <div><label>Tanggal</label><input type="date" id="iTanggal" required></div>
+          <div><label>Jumlah (Rp)</label><input type="number" id="iJumlah" min="0" required></div>
+        </div>
+        <label>Dari mana / untuk apa</label>
+        <input type="text" id="iNama" placeholder="mis. Budi bayar utang" required>
+        <button class="btn btn-primary" type="submit">Simpan pemasukan</button>
+      </form>
+    </div>
+    <div class="card" id="pemasukanList"></div>
+  </section>
+
+  <!-- RENCANA -->
+  <section id="view-rencana">
+    <h2 class="section-title">Rencana pembelian</h2>
+    <div class="card">
+      <form id="formRencana">
+        <label>Rencana beli apa</label>
+        <input type="text" id="rNama" placeholder="mis. Baju kerja" required>
+        <label>Perkiraan harga (Rp)</label>
+        <input type="number" id="rJumlah" min="0" required>
+        <button class="btn btn-primary" type="submit">Cek dampak & simpan draft</button>
+      </form>
+    </div>
+    <div class="card" id="rencanaList"></div>
+  </section>
+
+  <!-- PENGATURAN -->
+  <section id="view-pengaturan">
+    <h2 class="section-title">Pengaturan</h2>
+    <div class="card">
+      <form id="formPengaturan">
+        <label>Gaji per bulan (Rp)</label>
+        <input type="number" id="sGaji" min="0" required>
+        <label>Tanggal gajian (tanggal di setiap bulan)</label>
+        <input type="number" id="sTglGajian" min="1" max="28" required>
+        <label>Batas aman minimum sisa saldo (Rp)</label>
+        <input type="number" id="sThreshold" min="0" required>
+        <button class="btn btn-primary" type="submit">Simpan pengaturan</button>
+      </form>
+    </div>
+    <div class="card">
+      <p class="status-label" style="margin-bottom:10px;">Cadangan data</p>
+      <div class="actions">
+        <button class="btn btn-ghost btn-sm" id="btnExport">Ekspor JSON</button>
+        <button class="btn btn-ghost btn-sm" id="btnImport">Impor JSON</button>
+        <input type="file" id="fileImport" accept="application/json" style="display:none;">
+      </div>
+    </div>
+  </section>
+
+</main>
+
+</div>
+
+<nav>
+  <button data-view="dashboard" class="active"><span class="ic">📊</span>Ringkasan</button>
+  <button data-view="kebiasaan"><span class="ic">🔁</span>Kebiasaan</button>
+  <button data-view="pengeluaran"><span class="ic">🧾</span>Pengeluaran</button>
+  <button data-view="rencana"><span class="ic">🛒</span>Rencana</button>
+  <button data-view="pengaturan"><span class="ic">⚙️</span>Atur</button>
+</nav>
+
+<script>
+const DEFAULT_DATA = {
+  meta: { gaji: 9486135, tglGajian: 25, threshold: 300000, pin: null },
+  kebiasaan: [
+    {id:'k1', nama:'Cicilan Motor', jumlah:1255440},
+    {id:'k2', nama:'Cicilan Mobil', jumlah:3287440},
+    {id:'k3', nama:'Transjakarta harian', jumlah:105000},
+    {id:'k4', nama:'Gojek harian', jumlah:750000},
+    {id:'k5', nama:'Rokok', jumlah:420000},
+    {id:'k6', nama:'Ngopi weekend', jumlah:800000},
+  ],
+  pengeluaran: [],
+  rencana: [],
+  pemasukanLain: []
+};
+
+let data = null;
+let cloudMode = false;
+
+function uid(){ return 'x' + Math.random().toString(36).slice(2,9); }
+function rupiah(n){ return 'Rp' + Math.round(n).toLocaleString('id-ID'); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+// ---------- storage ----------
+async function loadData(){
+  const pin = localStorage.getItem('buku_arus_pin');
+  if(pin){
+    try{
+      const res = await fetch('/api/data', { headers: { Authorization: 'Bearer ' + pin } });
+      if(res.ok){
+        const json = await res.json();
+        cloudMode = true;
+        return json && json.meta ? json : structuredClone(DEFAULT_DATA);
+      }
+    }catch(e){ /* fall through to local */ }
+  }
+  cloudMode = false;
+  const raw = localStorage.getItem('buku_arus_data');
+  return raw ? JSON.parse(raw) : structuredClone(DEFAULT_DATA);
+}
+
+async function saveData(){
+  localStorage.setItem('buku_arus_data', JSON.stringify(data));
+  const pin = localStorage.getItem('buku_arus_pin');
+  if(pin){
+    try{
+      const res = await fetch('/api/data', {
+        method:'POST',
+        headers: { 'Content-Type':'application/json', Authorization:'Bearer ' + pin },
+        body: JSON.stringify(data)
+      });
+      cloudMode = res.ok;
+    }catch(e){ cloudMode = false; }
+  }
+  updateSyncBadge();
+}
+
+function updateSyncBadge(){
+  const el = document.getElementById('syncStatus');
+  if(cloudMode){
+    el.innerHTML = '<span class="dot cloud"></span>Tersambung ke cloud';
+  }else{
+    el.innerHTML = '<span class="dot local"></span>Tersimpan di perangkat ini';
+  }
+}
+
+// ---------- period logic ----------
+function getPeriode(){
+  const day = data.meta.tglGajian;
+  const now = new Date();
+  let start = new Date(now.getFullYear(), now.getMonth(), day);
+  if(now.getDate() < day){ start = new Date(now.getFullYear(), now.getMonth()-1, day); }
+  const end = new Date(start.getFullYear(), start.getMonth()+1, day);
+  return {start, end};
+}
+function inPeriode(dateStr){
+  const {start,end} = getPeriode();
+  const d = new Date(dateStr);
+  return d >= start && d < end;
+}
+
+// ---------- calculations ----------
+function totalKebiasaan(){ return data.kebiasaan.reduce((s,k)=>s+k.jumlah,0); }
+function totalPengeluaranPeriode(){ return data.pengeluaran.filter(p=>inPeriode(p.tanggal)).reduce((s,p)=>s+p.jumlah,0); }
+function totalRencanaPending(){ return data.rencana.filter(r=>r.status!=='dibeli').reduce((s,r)=>s+r.jumlah,0); }
+function totalPemasukanLainPeriode(){ return data.pemasukanLain.filter(p=>inPeriode(p.tanggal)).reduce((s,p)=>s+p.jumlah,0); }
+
+function sisaProyeksi(){
+  return data.meta.gaji + totalPemasukanLainPeriode() - totalKebiasaan() - totalPengeluaranPeriode() - totalRencanaPending();
+}
+function statusFromSisa(sisa){
+  if(sisa < 0) return 'over';
+  if(sisa < data.meta.threshold) return 'warn';
+  return 'safe';
+}
+
+// ---------- render ----------
+function render(){
+  const {start,end} = getPeriode();
+  document.getElementById('periodeText').textContent =
+    `Periode gajian: ${start.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} – ${end.toLocaleDateString('id-ID',{day:'numeric',month:'short'})}`;
+
+  const sisa = sisaProyeksi();
+  const st = statusFromSisa(sisa);
+  const card = document.getElementById('statusCard');
+  card.className = 'card status-card ' + st;
+  document.getElementById('sisaProyeksi').textContent = rupiah(sisa);
+  document.getElementById('dGaji').textContent = rupiah(data.meta.gaji);
+  document.getElementById('dKebiasaan').textContent = rupiah(totalKebiasaan());
+  document.getElementById('dPengeluaran').textContent = rupiah(totalPengeluaranPeriode());
+  document.getElementById('dRencana').textContent = rupiah(totalRencanaPending());
+  document.getElementById('dPemasukanLain').textContent = rupiah(totalPemasukanLainPeriode());
+
+  const msg = document.getElementById('statusMsg');
+  if(st==='over') msg.textContent = '⚠️ Proyeksi minus. Ada yang harus dikurangi atau diputar sebelum gajian berikutnya.';
+  else if(st==='warn') msg.textContent = `⚠️ Sisa saldo di bawah batas aman (${rupiah(data.meta.threshold)}). Hati-hati menambah pengeluaran baru.`;
+  else msg.textContent = '✅ Masih dalam batas aman sampai gajian berikutnya.';
+
+  // recent
+  const recent = [...data.pengeluaran].sort((a,b)=>b.tanggal.localeCompare(a.tanggal)).slice(0,5);
+  document.getElementById('recentList').innerHTML = recent.length ? recent.map(p=>`
+    <div class="row"><div><div class="name">${p.nama}</div><div class="meta">${new Date(p.tanggal).toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</div></div><div class="amt">${rupiah(p.jumlah)}</div></div>
+  `).join('') : '<p class="empty">Belum ada pengeluaran tercatat.</p>';
+
+  // kebiasaan
+  document.getElementById('kebiasaanList').innerHTML = data.kebiasaan.length ? data.kebiasaan.map(k=>`
+    <div class="row"><div class="name">${k.nama}</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="amt">${rupiah(k.jumlah)}</span>
+        <button class="btn btn-ghost btn-sm" onclick="editKebiasaan('${k.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="hapusKebiasaan('${k.id}')">Hapus</button>
+      </div></div>
+  `).join('') : '<p class="empty">Belum ada kebiasaan.</p>';
+
+  // pengeluaran list (periode)
+  const list = data.pengeluaran.filter(p=>inPeriode(p.tanggal)).sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
+  document.getElementById('pengeluaranList').innerHTML = list.length ? list.map(p=>`
+    <div class="row"><div><div class="name">${p.nama}</div><div class="meta">${new Date(p.tanggal).toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;"><span class="amt">${rupiah(p.jumlah)}</span>
+      <button class="btn btn-danger btn-sm" onclick="hapusPengeluaran('${p.id}')">Hapus</button></div></div>
+  `).join('') : '<p class="empty">Belum ada pengeluaran di periode ini.</p>';
+
+  // pemasukan lain (periode)
+  const inList = data.pemasukanLain.filter(p=>inPeriode(p.tanggal)).sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
+  document.getElementById('pemasukanList').innerHTML = inList.length ? inList.map(p=>`
+    <div class="row"><div><div class="name">${p.nama}</div><div class="meta">${new Date(p.tanggal).toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;"><span class="amt" style="color:var(--safe);">+${rupiah(p.jumlah)}</span>
+      <button class="btn btn-danger btn-sm" onclick="hapusPemasukan('${p.id}')">Hapus</button></div></div>
+  `).join('') : '<p class="empty">Belum ada pemasukan lain di periode ini.</p>';
+
+  // rencana
+  document.getElementById('rencanaList').innerHTML = data.rencana.length ? data.rencana.map(r=>`
+    <div class="row"><div><div class="name">${r.nama}</div><div class="meta">${rupiah(r.jumlah)}</div></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="badge ${r.status==='dibeli'?'safe':r.dampak}">${r.status==='dibeli'?'Sudah dibeli':(r.dampak==='over'?'Over':r.dampak==='warn'?'Hati-hati':'Aman')}</span>
+        ${r.status!=='dibeli' ? `<button class="btn btn-ghost btn-sm" onclick="tandaiDibeli('${r.id}')">Sudah dibeli</button>` : ''}
+        <button class="btn btn-danger btn-sm" onclick="hapusRencana('${r.id}')">Hapus</button>
+      </div></div>
+  `).join('') : '<p class="empty">Belum ada rencana pembelian.</p>';
+
+  document.getElementById('sGaji').value = data.meta.gaji;
+  document.getElementById('sTglGajian').value = data.meta.tglGajian;
+  document.getElementById('sThreshold').value = data.meta.threshold;
+
+  updateSyncBadge();
+}
+
+// ---------- actions ----------
+window.editKebiasaan = function(id){
+  const k = data.kebiasaan.find(x=>x.id===id);
+  const val = prompt('Estimasi per bulan untuk "' + k.nama + '" (Rp):', k.jumlah);
+  if(val === null) return;
+  k.jumlah = Number(val) || 0;
+  saveData(); render();
+}
+window.hapusKebiasaan = function(id){
+  data.kebiasaan = data.kebiasaan.filter(k=>k.id!==id);
+  saveData(); render();
+}
+window.hapusPengeluaran = function(id){
+  data.pengeluaran = data.pengeluaran.filter(p=>p.id!==id);
+  saveData(); render();
+}
+window.hapusRencana = function(id){
+  data.rencana = data.rencana.filter(r=>r.id!==id);
+  saveData(); render();
+}
+window.hapusPemasukan = function(id){
+  data.pemasukanLain = data.pemasukanLain.filter(p=>p.id!==id);
+  saveData(); render();
+}
+window.tandaiDibeli = function(id){
+  const r = data.rencana.find(x=>x.id===id);
+  data.pengeluaran.push({id:uid(), tanggal: todayISO(), nama: r.nama, jumlah: r.jumlah});
+  r.status = 'dibeli';
+  saveData(); render();
+}
+
+// ---------- forms ----------
+document.getElementById('formKebiasaan').addEventListener('submit', e=>{
+  e.preventDefault();
+  data.kebiasaan.push({id:uid(), nama:document.getElementById('kNama').value, jumlah:Number(document.getElementById('kJumlah').value)});
+  e.target.reset();
+  saveData(); render();
+});
+
+document.getElementById('formPengeluaran').addEventListener('submit', e=>{
+  e.preventDefault();
+  data.pengeluaran.push({
+    id:uid(),
+    tanggal: document.getElementById('pTanggal').value,
+    nama: document.getElementById('pNama').value,
+    jumlah: Number(document.getElementById('pJumlah').value)
+  });
+  e.target.reset();
+  document.getElementById('pTanggal').value = todayISO();
+  saveData(); render();
+});
+
+document.getElementById('formPemasukan').addEventListener('submit', e=>{
+  e.preventDefault();
+  data.pemasukanLain.push({
+    id:uid(),
+    tanggal: document.getElementById('iTanggal').value,
+    nama: document.getElementById('iNama').value,
+    jumlah: Number(document.getElementById('iJumlah').value)
+  });
+  e.target.reset();
+  document.getElementById('iTanggal').value = todayISO();
+  saveData(); render();
+});
+
+document.getElementById('formRencana').addEventListener('submit', e=>{
+  e.preventDefault();
+  const jumlah = Number(document.getElementById('rJumlah').value);
+  const nama = document.getElementById('rNama').value;
+  // simulate impact: sisa saldo if this plan is added on top of existing pending
+  const sisaSetelah = data.meta.gaji + totalPemasukanLainPeriode() - totalKebiasaan() - totalPengeluaranPeriode() - totalRencanaPending() - jumlah;
+  const dampak = statusFromSisa(sisaSetelah);
+  data.rencana.push({id:uid(), nama, jumlah, status:'draft', dampak});
+  e.target.reset();
+  saveData(); render();
+  alert(dampak==='over' ? 'Rencana ini akan membuat saldo MINUS sebelum gajian berikutnya.'
+      : dampak==='warn' ? 'Rencana ini akan menekan saldo ke bawah batas aman. Perlu hati-hati.'
+      : 'Rencana ini masih dalam batas aman.');
+});
+
+document.getElementById('formPengaturan').addEventListener('submit', e=>{
+  e.preventDefault();
+  data.meta.gaji = Number(document.getElementById('sGaji').value);
+  data.meta.tglGajian = Number(document.getElementById('sTglGajian').value);
+  data.meta.threshold = Number(document.getElementById('sThreshold').value);
+  saveData(); render();
+  alert('Pengaturan disimpan.');
+});
+
+// recompute dampak badges for existing draft rencana whenever core data changes
+function recomputeRencanaDampak(){
+  let running = 0;
+  data.rencana.filter(r=>r.status!=='dibeli').forEach(r=>{
+    running += r.jumlah;
+    const sisaSetelah = data.meta.gaji + totalPemasukanLainPeriode() - totalKebiasaan() - totalPengeluaranPeriode() - running;
+    r.dampak = statusFromSisa(sisaSetelah);
+  });
+}
+
+// ---------- nav ----------
+document.querySelectorAll('nav button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view-' + btn.dataset.view).classList.add('active');
+  });
+});
+
+// ---------- sync setup ----------
+document.getElementById('btnSyncSetup').addEventListener('click', async ()=>{
+  const pin = prompt('Buat atau masukkan kode akun cloud kamu (bebas, minimal 4 karakter).\n\n- Pakai kode yang SAMA di semua perangkatmu supaya sinkron.\n- Pakai kode BERBEDA untuk bikin akun terpisah (misalnya punya pacar).\n\nKosongkan untuk lepas sambungan cloud:', localStorage.getItem('buku_arus_pin') || '');
+  if(pin === null) return;
+  if(pin === ''){
+    localStorage.removeItem('buku_arus_pin');
+    cloudMode = false;
+    updateSyncBadge();
+    return;
+  }
+  if(pin.trim().length < 4){
+    alert('Kode akun minimal 4 karakter.');
+    return;
+  }
+  localStorage.setItem('buku_arus_pin', pin.trim());
+  try{
+    const res = await fetch('/api/data', { headers: { Authorization: 'Bearer ' + pin.trim() } });
+    if(res.ok){
+      const json = await res.json();
+      if(json && json.meta){
+        // akun ini sudah punya data di cloud -> pakai itu
+        data = json;
+      }else{
+        // akun baru / masih kosong di cloud -> upload data yang ada di perangkat ini sekarang
+        cloudMode = true;
+        await saveData();
+      }
+      cloudMode = true;
+    }else{
+      alert('Gagal terhubung ke cloud. Pastikan KV namespace sudah di-bind (lihat README).');
+      localStorage.removeItem('buku_arus_pin');
+      cloudMode = false;
+    }
+  }catch(e){
+    alert('Gagal terhubung ke cloud. Cek koneksi internet atau setup Cloudflare-nya.');
+    localStorage.removeItem('buku_arus_pin');
+    cloudMode = false;
+  }
+  if(!Array.isArray(data.pemasukanLain)) data.pemasukanLain = [];
+  recomputeRencanaDampak();
+  updateSyncBadge();
+  render();
+});
+
+// ---------- export / import ----------
+document.getElementById('btnExport').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'buku-arus-backup-' + todayISO() + '.json';
+  a.click();
+});
+document.getElementById('btnImport').addEventListener('click', ()=>document.getElementById('fileImport').click());
+document.getElementById('fileImport').addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async ()=>{
+    try{
+      const imported = JSON.parse(reader.result);
+      data = imported;
+      if(!Array.isArray(data.pemasukanLain)) data.pemasukanLain = [];
+      recomputeRencanaDampak();
+      await saveData();
+      render();
+      alert('Data berhasil diimpor.');
+    }catch(err){ alert('File tidak valid.'); }
+  };
+  reader.readAsText(file);
+});
+
+// ---------- init ----------
+(async function init(){
+  data = await loadData();
+  if(!Array.isArray(data.pemasukanLain)) data.pemasukanLain = [];
+  recomputeRencanaDampak();
+  document.getElementById('pTanggal').value = todayISO();
+  document.getElementById('iTanggal').value = todayISO();
+  render();
+})();
+</script>
+</body>
+</html>
