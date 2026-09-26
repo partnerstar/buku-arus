@@ -101,3 +101,4 @@ rokok, ngopi weekend) sudah diisi otomatis sebagai titik awal berdasarkan
 rincian yang kamu berikan — semuanya bisa diedit atau dihapus kapan saja di
 tab **Kebiasaan** dan **Atur**. Ini hanya nongol di data lokal awal /
 akun baru yang belum pernah menyimpan apa pun ke cloud.
+
